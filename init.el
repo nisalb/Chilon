@@ -67,9 +67,13 @@
                                        "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
                                        "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
                                        "\\\\" "://"))
+  (global-ligature-mode t)
   ;; But I don't need them in C. Because, I want to feel C as a low level language
-  (ligature-set-ligatures 'c-mode '("www" "ff" "fi" "ffi"))
-  (global-ligature-mode t))
+  (dolist (mode '(c-mode-common-hook))
+    (add-hook mode
+	      (lambda ()
+		(ligature-mode -1)))))
+  
 
 ;; Now the basic UI requirements are complete.
 
