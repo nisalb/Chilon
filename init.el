@@ -4,6 +4,7 @@
 ;; UI preferences
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
+(column-number-mode)
 (add-to-list 'initial-frame-alist '(fullscreen . maximized))
 (add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
 
@@ -73,9 +74,39 @@
     (add-hook mode
 	      (lambda ()
 		(ligature-mode -1)))))
-  
+
+;; For engaging experience with Emacs
+(use-package which-key
+  :config
+  (which-key-mode))
+
+;; This is for vertico. For vertico to sort by history position
+(use-package savehist
+  :init
+  (savehist-mode))
+
+(use-package vertico
+  :init
+  (setq minibuffer-prompt-properties
+	'(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+  (setq enable-recursive-minibuffers t)
+  (vertico-mode))
+
+(use-package orderless
+  :init
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
 
 ;; Now the basic UI requirements are complete.
+
+;; Managing projects with projectile
+(use-package projectile
+  :init
+  (projectile-mode +1)
+  :bind (:map projectile-mode-map
+	      ("C-c p" . projectile-command-map)))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
