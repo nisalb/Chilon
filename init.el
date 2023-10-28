@@ -180,13 +180,10 @@
   (setq-default fringes-outside-margins t)
   :init
   (global-diff-hl-mode)
-  (dolist (mode '(evil-normal-state-entry-hook evil-emacs-state-entry-hook))
-    (add-hook mode (lambda (&rest _)
-		     (ignore (or inhibit-redisplay
-				 (and (or (bound-and-true-p diff-hl-mode)
-					  (bound-and-true-p diff-hl-dir-mode))
-				      (diff-hl-update-once))))))))
-
+  :config
+  (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+  
 ;; Prorgamming Languages
 
 ;;; Ruby
