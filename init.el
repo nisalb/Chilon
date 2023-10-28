@@ -1,3 +1,9 @@
+;; Chilon Emacs
+;; "Less is More" -- Chilon of Sparta
+
+;; add <CHILON>/lisp to load path
+(push (concat user-emacs-directory "lisp/") load-path)
+
 ;; General emacs configurations
 (setq straight-repository-branch "develop")
 
@@ -44,7 +50,8 @@
   (straight-use-package-by-default t))
 
 ;; Get alabaster theme
-;; Alabaster is a minimal, no-clutter, soothing theme. It makes programming feel cleaner and fun.
+;; Alabaster is a minimal, no-clutter, soothing theme.
+;; It makes programming feel cleaner and fun.
 (straight-use-package
  '(alabaster :type git
 	     :host github
@@ -55,19 +62,20 @@
 (use-package ligature
   :config
   ;; Enable ligatures in all programming modes
-  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
-                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
-                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
-                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
-                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
-                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
-                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
-                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
-                                       ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
-                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
-                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
-                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
-                                       "\\\\" "://"))
+  (ligature-set-ligatures 'prog-mode
+			  '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+			    ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                            "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+                            "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+                            "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+                            "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+                            "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+                            "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+                            ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+                            "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+                            "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+                            "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+                            "\\\\" "://"))
   (global-ligature-mode t)
   ;; But I don't need them in C. Because, I want to feel C as a low level language
   (dolist (mode '(c-mode-common-hook))
@@ -85,19 +93,8 @@
   :init
   (savehist-mode))
 
-(use-package vertico
-  :init
-  (setq minibuffer-prompt-properties
-	'(read-only t cursor-intangible t face minibuffer-prompt))
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-  (setq enable-recursive-minibuffers t)
-  (vertico-mode))
-
-(use-package orderless
-  :init
-  (setq completion-styles '(orderless basic)
-        completion-category-defaults nil
-        completion-category-overrides '((file (styles partial-completion)))))
+;; Enahnce the completion UI
+(load "completion")
 
 ;; Now the basic UI requirements are complete.
 
@@ -107,6 +104,87 @@
   (projectile-mode +1)
   :bind (:map projectile-mode-map
 	      ("C-c p" . projectile-command-map)))
+
+;; Terminal integration for Emacs with vterm
+(use-package vterm
+  :bind ("C-c t" ("Open terminal by side" . vterm-other-window)))
+
+;; Treat undos as a tree, rather than a linear sequence of changes
+(use-package undo-tree
+  :init
+  (global-undo-tree-mode)
+  :custom
+  (undo-tree-history-directory-alist
+   `(("." . ,(concat user-emacs-directory ".cache/undo-tree-hist/"))))
+  :config
+  (setq undo-tree-visualizer-diff t
+	undo-tree-auto-save-history t
+	undo-tree-enable-undo-in-region t
+	ndo-limit 800000 
+        undo-strong-limit 12000000
+        undo-outer-limit 128000000)
+  (advice-add 'undo-tree-make-history-file-name
+	      :filter-return (lambda (file)
+			       (cond ((executable-find "zstd")
+				      (concat file ".zst"))
+				     ((executable-find "gzip")
+				      (concat file ".gz"))
+				     (t (concat file "")))))
+  (advice-add 'undo-list-transfer-to-tree	
+	      :before (lambda (&rest _)
+			(dolist (item buffer-undo-list)
+			  (and (consp item)
+			       (stringp (car item))
+			       (setcar item (substring-no-properties (car item))))))))
+
+;; Vi mode is better. I think...
+(use-package evil
+  :preface
+  (setq evil-ex-search-vim-style-regexp t
+        evil-ex-visual-char-range t  ; column range for ex commands
+        ;; more vim-like behavior
+        evil-symbol-word-search t
+        evil-normal-state-cursor 'box
+        evil-emacs-state-cursor  'box
+        evil-insert-state-cursor 'bar
+        evil-visual-state-cursor 'hollow
+        evil-ex-interactive-search-highlight 'selected-window
+        evil-kbd-macro-suppress-motion-error t
+        evil-undo-system 'undo-tree
+	evil-default-state 'emacs)
+  :init
+  (evil-mode))
+
+;; VCS Integration
+
+;;; Git interface
+(use-package magit
+  :init
+  (setq transient-levels-file (concat user-emacs-directory ".cache/transient/levels")
+	transient-values-file (concat user-emacs-directory ".cache/transient/values")
+	transient-history-file (concat user-emacs-directory ".cache/transient/history"))
+  :config
+  (setq magit-diff-refine-hunk t
+	magit-save-respository-buffer nil)
+  (add-hook 'magit-process-mode-hook #'goto-address-mode)
+  (dolist (fn '(magit-checkout magit-branch-and-checkout))
+    (advice-add fn
+		:after (lambda (&rest _)
+			 (projectile-invalidate-cache nil)))))
+(use-package magit-todos)
+
+;;; Highlight vc diffs
+(use-package diff-hl
+  :preface
+  (if (fboundp 'fringe-mode) (fringe-mode '8))
+  (setq-default fringes-outside-margins t)
+  :init
+  (global-diff-hl-mode))
+
+;; Prorgamming Languages
+
+;;; Ruby
+(load "ruby")
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
