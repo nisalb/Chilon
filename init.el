@@ -179,7 +179,13 @@
   (if (fboundp 'fringe-mode) (fringe-mode '8))
   (setq-default fringes-outside-margins t)
   :init
-  (global-diff-hl-mode))
+  (global-diff-hl-mode)
+  (dolist (mode '(evil-normal-state-entry-hook evil-emacs-state-entry-hook))
+    (add-hook mode (lambda (&rest _)
+		     (ignore (or inhibit-redisplay
+				 (and (or (bound-and-true-p diff-hl-mode)
+					  (bound-and-true-p diff-hl-dir-mode))
+				      (diff-hl-update-once))))))))
 
 ;; Prorgamming Languages
 
