@@ -11,3 +11,5 @@
 
 ;; to start a repl
 (use-package inf-ruby)
+
+(provide 'ruby)
