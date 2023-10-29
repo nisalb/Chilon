@@ -156,7 +156,7 @@
   (evil-mode))
 
 ;; VCS Integration
-(require 'vc)
+(require 'vcs)
 
 ;; Prorgamming Languages
 
