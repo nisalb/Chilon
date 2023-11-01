@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t -*-
+
 ;; A better completion UI
 (use-package vertico
   :init
@@ -9,10 +11,15 @@
 
 ;; Search with space-separated patterns
 (use-package orderless
-  :init
+  :config
   (setq completion-styles '(orderless basic)
         completion-category-defaults nil
-        completion-category-overrides '((file (styles partial-completion)))))
+        completion-category-overrides '((file (styles orderless partial-completion))
+					(command (styles orderless partial-completion))
+					(variable (styles orderless partial-completion))
+					(symbol (styles orderless partial-completion)))
+	orderless-component-separator #'orderless-escapable-split-on-space))
+						   
 
 ;; Rich annotations to minibuffer items
 (use-package marginalia
@@ -22,6 +29,14 @@
 	      ("M-A" . marginalia-cycle)))
 
 (use-package consult
+  :init
+  (defun consult--orderless-regexp-compiler (input type &rest _config)
+    (setq compiled (orderless-pattern-compiler input))
+    (cons
+     (mapcar (lambda (r) (consult--convert-regexp r type)) compiled)
+     (lambda (str) (orderless--highlight compiled str))))
+  (setq consult--regexp-compiler #'consult--orderless-regexp-compiler)
+ 
   :bind (;; C-c bindings in `mode-specific-map'
          ("C-c M-x" . consult-mode-command)
          ("C-c h" . consult-history)
@@ -53,7 +68,7 @@
          ("M-g i" . consult-imenu)
          ("M-g I" . consult-imenu-multi)
          ;; M-s bindings in `search-map'
-         ("M-s f" . consult-fd)  
+         ("M-s f" . consult-find)  
          ("M-s g" . consult-ripgrep)
          ("M-s G" . consult-git-grep)
          ("M-s l" . consult-line)
@@ -93,5 +108,6 @@
   (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
   (autoload 'projectile-project-root "projectile")
   (setq consult-project-function (lambda (_) (projectile-project-root))))
+
 
 (provide 'completion)
