@@ -155,6 +155,13 @@
   :init
   (evil-mode))
 
+;; Easy window select
+(use-package switch-window
+  :init
+  (global-set-key [remap other-window] #'switch-window)
+  :config
+  (setq switch-window-shortcut-style 'qwerty))
+
 ;; VCS Integration
 (require 'vcs)
 
