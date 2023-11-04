@@ -156,11 +156,13 @@
   (evil-mode))
 
 ;; Easy window select
-(use-package switch-window
+(use-package ace-window
   :init
-  (global-set-key [remap other-window] #'switch-window)
+  (global-set-key [remap other-window] #'ace-window)
   :config
-  (setq switch-window-shortcut-style 'qwerty))
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
+	aw-scope 'frame
+        aw-background t))
 
 ;; VCS Integration
 (require 'vcs)
