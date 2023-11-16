@@ -164,6 +164,13 @@
 	aw-scope 'frame
         aw-background t))
 
+;; Activate org-babel languages
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((ruby . t)
+   (emacs-lisp . t)
+   (lisp . t)))
+
 ;; VCS Integration
 (require 'vcs)
 
@@ -172,6 +179,9 @@
 
 ;; Common Lisp
 (require 'clisp)
+
+;; Yaml
+(use-package yaml-mode)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
