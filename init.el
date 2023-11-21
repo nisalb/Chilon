@@ -60,6 +60,7 @@
 
 ;; Next I need the support for ligatures.
 (use-package ligature
+  :disabled t
   :config
   ;; Enable ligatures in all programming modes
   (ligature-set-ligatures 'prog-mode
