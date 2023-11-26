@@ -49,18 +49,14 @@
   :custom
   (straight-use-package-by-default t))
 
-;; Get alabaster theme
-;; Alabaster is a minimal, no-clutter, soothing theme.
-;; It makes programming feel cleaner and fun.
-(straight-use-package
- '(alabaster :type git
-	     :host github
-	     :repo "nisalb/alabaster-emacs"))
-(load-theme 'alabaster t)
+;; Stimmung is another minimal theme, with bare minimum of highlights
+(use-package stimmung-themes
+  :config
+  (setq stimmung-themes-comment 'foreground) 
+  (stimmung-themes-load-light))
 
 ;; Next I need the support for ligatures.
 (use-package ligature
-  :disabled t
   :config
   ;; Enable ligatures in all programming modes
   (ligature-set-ligatures 'prog-mode
@@ -197,4 +193,4 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "Iosevka" :foundry "nil" :slant normal :weight regular :height 120 :width expanded)))))
+ '(default ((t (:family "Lamda Mono" :foundry "nil" :slant normal :weight regular :height 120 :width normal)))))
